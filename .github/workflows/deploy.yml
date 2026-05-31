@@ -1,0 +1,36 @@
+name: Deploy Angular App to GitHub Pages
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build application
+        run: npm run build -- --configuration production --base-href /dress-rental-service/
+
+      - name: Add GitHub Pages fallback
+        run: cp dist/dress-rental-app/browser/index.html dist/dress-rental-app/browser/404.html
+
+      - name: Deploy to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          branch: gh-pages
+          folder: dist/dress-rental-app/browser
+          clean: true
+          token: ${{ secrets.GITHUB_TOKEN }}
