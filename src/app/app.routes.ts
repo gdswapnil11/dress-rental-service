@@ -40,6 +40,14 @@ export const routes: Routes = [
     loadComponent: () => import('./features/catalog/pages/catalog.page').then((m) => m.CatalogPage)
   },
   {
+    path: 'occasions',
+    loadComponent: () => import('./features/occasions/occasions.page').then((m) => m.OccasionsPage)
+  },
+  {
+    path: 'collections',
+    loadComponent: () => import('./features/collections/collections.page').then((m) => m.CollectionsPage)
+  },
+  {
     path: 'catalog/:id',
     loadComponent: () => import('./features/catalog/pages/dress-details.page').then((m) => m.DressDetailsPage)
   },

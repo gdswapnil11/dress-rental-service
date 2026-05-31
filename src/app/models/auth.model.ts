@@ -5,6 +5,12 @@ export interface AuthUser {
   phone: string;
   role: 'customer' | 'admin';
   token: string;
+  gender?: 'female' | 'male' | 'unisex';
+  ageGroup?: '18-24' | '25-34' | '35-44' | '45+';
+  membershipLevel?: 'Silver' | 'Gold' | 'Platinum';
+  favoriteCategories?: string[];
+  previousRentals?: string[];
+  city?: string;
 }
 
 export interface LoginPayload {

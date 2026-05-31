@@ -32,6 +32,6 @@ export class CatalogPage {
   protected query = '';
 
   search() {
-    this.catalogService.loadDresses(this.query);
+    this.catalogService.loadDresses({ search: this.query });
   }
 }

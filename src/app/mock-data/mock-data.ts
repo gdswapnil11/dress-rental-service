@@ -1,4 +1,5 @@
 import type { Category } from '../models/category.model';
+import type { Collection } from '../models/collection.model';
 import type { Coupon } from '../models/coupon.model';
 import type { Dress } from '../models/dress.model';
 import type { Notification } from '../models/notification.model';
@@ -6,9 +7,12 @@ import type { Order } from '../models/order.model';
 import type { Review } from '../models/review.model';
 import type { User } from '../models/user.model';
 
+export const cities = ['Pune', 'Mumbai', 'Nagpur', 'Hyderabad', 'Bangalore'];
 const brandNames = ['Maison Lumière', 'Velvet Atelier', 'Noir Couture', 'Aurora Atelier', 'Serene Silhouettes'];
-const occasions = ['Wedding', 'Evening', 'Gala', 'Cocktail', 'Bridal', 'Red Carpet'];
-const colors = ['Champagne', 'Ruby', 'Emerald', 'Sapphire', 'Ivory', 'Midnight'];
+export const occasions = ['Wedding', 'Reception', 'Engagement', 'Mehendi', 'Haldi', 'Sangeet', 'Navratri', 'Diwali', 'Ganesh Festival', 'Durga Puja', 'Eid', 'Farewell Party', 'Freshers Party', 'Annual Function', 'College Gathering', 'Birthday Party', 'Corporate Event', 'Photoshoot'];
+const colors = ['Champagne', 'Ruby', 'Emerald', 'Sapphire', 'Ivory', 'Midnight', 'Gold', 'Rose', 'Peach', 'Teal'];
+const priceTiers: Dress['priceTier'][] = ['Normal', 'Festival', 'Wedding Season', 'Weekend'];
+const depositCategories: Dress['depositCategory'][] = ['Premium Bridal Wear', 'Designer Collection', 'Luxury Collection', 'Standard'];
 const sizeOptions = ['XS', 'S', 'M', 'L', 'XL'];
 const categoryList = [
   'Evening Gowns',
@@ -40,6 +44,42 @@ export const categories: Category[] = categoryList.map((name, index) => ({
   image: `https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=800&q=80&sig=${index}`
 }));
 
+export const collections: Collection[] = [
+  {
+    id: 'collection-navratri-2026',
+    title: 'Navratri 2026 Collection',
+    description: 'A festive edit designed for dandiya nights and nine evenings of celebration.',
+    highlight: 'Vibrant lehengas and statement accessories',
+    image: 'https://images.unsplash.com/photo-1549291326-f8fd74997d73?auto=format&fit=crop&w=1200&q=80',
+    active: true,
+    occasionTags: ['Navratri', 'Diwali', 'Ganesh Festival', 'Durga Puja'],
+    cityAvailability: ['Pune', 'Mumbai', 'Hyderabad', 'Bangalore'],
+    featuredDressIds: ['dress-2', 'dress-8', 'dress-14']
+  },
+  {
+    id: 'collection-wedding-season',
+    title: 'Wedding Season Collection',
+    description: 'Curated bridal and guest looks for the wedding season.',
+    highlight: 'Lehengas, jewelry sets, and couture-ready styles',
+    image: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=1200&q=80',
+    active: true,
+    occasionTags: ['Wedding', 'Reception', 'Engagement', 'Sangeet'],
+    cityAvailability: ['Mumbai', 'Pune', 'Nagpur', 'Bangalore'],
+    featuredDressIds: ['dress-4', 'dress-16', 'dress-27']
+  },
+  {
+    id: 'collection-farewell-special',
+    title: 'Farewell Special Collection',
+    description: 'Designed for college send-offs and heartfelt evening celebrations.',
+    highlight: 'Trendy silhouettes with a youthful edge',
+    image: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=1200&q=80',
+    active: true,
+    occasionTags: ['Farewell Party', 'Freshers Party', 'College Gathering'],
+    cityAvailability: ['Nagpur', 'Hyderabad', 'Bangalore'],
+    featuredDressIds: ['dress-11', 'dress-22', 'dress-33']
+  }
+];
+
 const imagePool = [
   'https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=1200&q=80',
   'https://images.unsplash.com/photo-1520975659880-0d8faddb17f8?auto=format&fit=crop&w=1200&q=80',
@@ -54,6 +94,11 @@ export const dresses: Dress[] = Array.from({ length: 100 }, (_, index) => {
   const occasion = occasions[index % occasions.length];
   const color = colors[index % colors.length];
   const rating = Number((4.3 + (index % 20) * 0.03).toFixed(1));
+  const city = cities[index % cities.length];
+  const availableToday = index % 4 !== 0;
+  const priceTier = priceTiers[index % priceTiers.length];
+  const depositCategory = depositCategories[index % depositCategories.length];
+  const collection = index % 5 === 0 ? collections[0].id : index % 7 === 0 ? collections[1].id : index % 9 === 0 ? collections[2].id : undefined;
 
   return {
     id: `dress-${index + 1}`,
@@ -64,13 +109,18 @@ export const dresses: Dress[] = Array.from({ length: 100 }, (_, index) => {
     price: 1699 + ((index % 8) * 250),
     deposit: 1200 + ((index % 6) * 150),
     available: index % 6 !== 0,
+    availableToday,
+    availableCities: [city, cities[(index + 1) % cities.length]],
     rating,
     reviews: 24 + (index % 12) * 3,
     sizes: sizeOptions.filter((_, sizeIndex) => sizeIndex <= (index % sizeOptions.length)),
-    colors: [color, 'Black', 'Ivory'].slice(0, 3),
+    colors: [color, 'Black', 'Ivory', 'Gold'].slice(0, 3),
     occasion,
+    collection,
+    priceTier,
+    depositCategory,
     images: [imagePool[index % imagePool.length], imagePool[(index + 1) % imagePool.length], imagePool[(index + 2) % imagePool.length]],
-    tags: [occasion, category.name, brand]
+    tags: [occasion, category.name, brand, city, priceTier]
   };
 });
 
@@ -85,18 +135,40 @@ const names = [
   'Pallavi Roy', 'Sneha Bose', 'Richa Ghosh', 'Pooja Iyer', 'Tanisha Das'
 ];
 
-export const users: User[] = Array.from({ length: 50 }, (_, index) => ({
-  id: `user-${index + 1}`,
-  fullName: names[index % names.length],
-  email: `user${index + 1}@fashionrent.com`,
-  phone: `+91-90000${String(index + 1).padStart(5, '0')}`,
-  role: index === 0 ? 'admin' : 'customer',
-  avatar: `https://i.pravatar.cc/150?img=${index + 5}`,
-  wishlist: dresses.filter((_, i) => i % 11 === index % 11).slice(0, 4).map(dress => dress.id),
-  savedAddresses: [
-    { id: `addr-${index + 1}`, label: 'Home', address: `Flat ${index + 3}, Luxury Apartments, Fashion Street, Mumbai` }
-  ]
-}));
+const membershipLevels: User['membershipLevel'][] = ['Silver', 'Gold', 'Platinum'];
+const ageGroups: User['ageGroup'][] = ['18-24', '25-34', '35-44', '45+'];
+
+export const users: User[] = Array.from({ length: 50 }, (_, index) => {
+  const city = cities[index % cities.length];
+  const favoriteCategories = [categories[index % categories.length].name, categories[(index + 3) % categories.length].name];
+  const previousRentals = dresses.filter((_, i) => i % 12 === index % 11).slice(0, 3).map((dress) => dress.id);
+
+  return {
+    id: `user-${index + 1}`,
+    fullName: names[index % names.length],
+    email: `user${index + 1}@fashionrent.com`,
+    phone: `+91-90000${String(index + 1).padStart(5, '0')}`,
+    role: index === 0 ? 'admin' : 'customer',
+    avatar: `https://i.pravatar.cc/150?img=${index + 5}`,
+    wishlist: dresses.filter((_, i) => i % 11 === index % 11).slice(0, 4).map((dress) => dress.id),
+    savedAddresses: [
+      { id: `addr-${index + 1}`, label: 'Home', address: `Flat ${index + 3}, Luxury Apartments, Fashion Street, ${city}` }
+    ],
+    gender: index % 2 === 0 ? 'female' : 'male',
+    ageGroup: ageGroups[index % ageGroups.length],
+    measurements: {
+      height: 150 + (index % 5) * 5,
+      weight: 50 + (index % 5) * 4,
+      bust: 30 + (index % 5) * 2,
+      waist: 24 + (index % 5) * 2,
+      hip: 34 + (index % 5) * 2
+    },
+    membershipLevel: membershipLevels[index % membershipLevels.length],
+    favoriteCategories,
+    previousRentals,
+    city
+  };
+});
 
 const reviewNotes = [
   'The fit was flawless and the fabric felt luxurious.',

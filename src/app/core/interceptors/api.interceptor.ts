@@ -36,6 +36,14 @@ export class ApiInterceptor implements HttpInterceptor {
       return of(new HttpResponse({ status: 200, body: this.mockData.categories })).pipe(delay(240));
     }
 
+    if (requestUrl === '/api/collections' && req.method === 'GET') {
+      return of(new HttpResponse({ status: 200, body: this.mockData.collections.filter((collection) => collection.active) })).pipe(delay(240));
+    }
+
+    if (requestUrl === '/api/occasions' && req.method === 'GET') {
+      return of(new HttpResponse({ status: 200, body: this.mockData.dresses.map((dress) => dress.occasion).filter((value, index, self) => self.indexOf(value) === index) })).pipe(delay(240));
+    }
+
     if (requestUrl === '/api/dresses' && req.method === 'GET') {
       return of(new HttpResponse({ status: 200, body: this.filterDresses(params) })).pipe(delay(250));
     }
@@ -98,6 +106,13 @@ export class ApiInterceptor implements HttpInterceptor {
       avatar: `https://i.pravatar.cc/150?img=${this.mockData.users.length + 10}`,
       wishlist: [],
       savedAddresses: [{ id: `addr-${this.mockData.users.length + 1}`, label: 'Home', address: 'Registered delivery address' }],
+      gender: 'female' as const,
+      ageGroup: '25-34' as const,
+      measurements: { height: 165, weight: 55, bust: 34, waist: 26, hip: 36 },
+      membershipLevel: 'Silver' as const,
+      favoriteCategories: [],
+      previousRentals: [],
+      city: 'Mumbai',
       token: `token-user-${this.mockData.users.length + 1}`
     };
 
@@ -121,6 +136,13 @@ export class ApiInterceptor implements HttpInterceptor {
           avatar: `https://i.pravatar.cc/150?img=${this.mockData.users.length + 10}`,
           wishlist: [],
           savedAddresses: [{ id: `addr-${this.mockData.users.length + 1}`, label: 'Home', address: 'Registered delivery address' }],
+          gender: 'female' as const,
+          ageGroup: '25-34' as const,
+          measurements: { height: 165, weight: 55, bust: 34, waist: 26, hip: 36 },
+          membershipLevel: 'Silver' as const,
+          favoriteCategories: [],
+          previousRentals: [],
+          city: 'Mumbai',
           token: `token-user-${this.mockData.users.length + 1}`
         };
   }
@@ -129,25 +151,65 @@ export class ApiInterceptor implements HttpInterceptor {
     let items = this.mockData.dresses;
     const search = params.get('search');
     const category = params.get('category');
+    const occasion = params.get('occasion');
+    const collection = params.get('collection');
+    const city = params.get('city');
+    const availableToday = params.get('availableToday') === 'true';
     const minPrice = Number(params.get('minPrice')) || 0;
     const maxPrice = Number(params.get('maxPrice')) || Number.MAX_SAFE_INTEGER;
 
     if (search) {
-      items = items.filter((dress) => dress.name.toLowerCase().includes(search.toLowerCase()) || dress.description.toLowerCase().includes(search.toLowerCase()));
+      items = items.filter((dress) => dress.name.toLowerCase().includes(search.toLowerCase()) || dress.description.toLowerCase().includes(search.toLowerCase()) || dress.tags.some((tag) => tag.toLowerCase().includes(search.toLowerCase())));
     }
     if (category) {
       items = items.filter((dress) => dress.category === category);
+    }
+    if (occasion) {
+      items = items.filter((dress) => dress.occasion === occasion);
+    }
+    if (collection) {
+      items = items.filter((dress) => dress.collection === collection);
+    }
+    if (city) {
+      items = items.filter((dress) => dress.availableCities.includes(city));
+    }
+    if (availableToday) {
+      items = items.filter((dress) => dress.availableToday);
     }
     return items.filter((dress) => dress.price >= minPrice && dress.price <= maxPrice);
   }
 
   private createAnalytics() {
+    const revenue = this.mockData.orders.reduce((sum, order) => sum + order.price, 0);
+    const orders = this.mockData.orders.length;
+    const activeRentals = this.mockData.orders.filter((order) => order.status !== 'Completed' && order.status !== 'Returned').length;
+    const topCities = this.mockData.dresses.reduce<Record<string, number>>((acc, dress) => {
+      dress.availableCities.forEach((city) => (acc[city] = (acc[city] || 0) + 1));
+      return acc;
+    }, {});
+    const revenueByOccasion = this.mockData.dresses.reduce<Record<string, number>>((acc, dress) => {
+      acc[dress.occasion] = (acc[dress.occasion] || 0) + dress.price;
+      return acc;
+    }, {});
+    const membershipCounts = this.mockData.users.reduce<Record<string, number>>((acc, user) => {
+      const level = user.membershipLevel || 'Silver';
+      acc[level] = (acc[level] || 0) + 1;
+      return acc;
+    }, {});
     return {
-      revenue: this.mockData.orders.reduce((sum, order) => sum + order.price, 0),
-      orders: this.mockData.orders.length,
-      activeRentals: this.mockData.orders.filter((order) => order.status !== 'Completed' && order.status !== 'Returned').length,
+      revenue,
+      orders,
+      activeRentals,
       dresses: this.mockData.dresses.length,
-      users: this.mockData.users.length
+      users: this.mockData.users.length,
+      topCities,
+      revenueByOccasion,
+      membershipCounts,
+      mostRentedCategories: this.mockData.dresses.reduce<Record<string, number>>((acc, dress) => {
+        acc[dress.category] = (acc[dress.category] || 0) + 1;
+        return acc;
+      }, {}),
+      peakBookingMonths: ['March', 'October', 'December']
     };
   }
 }

@@ -16,10 +16,10 @@ import type { Review } from '../../../models/review.model';
         <div class="grid gap-10 lg:grid-cols-[0.9fr_0.6fr]">
           <div class="space-y-6">
             <div class="grid gap-4 md:grid-cols-2">
-              <img [src]="dress.images[0]" alt="{{ dress.name }}" class="h-[420px] w-full rounded-[2rem] object-cover" />
+              <img [src]="dress.images[0]" alt="{{ dress.name }}" (error)="onImageError($event)" class="h-[420px] w-full rounded-[2rem] object-cover" />
               <div class="grid gap-4">
-                <img [src]="dress.images[1]" alt="{{ dress.name }} image 2" class="h-48 w-full rounded-[2rem] object-cover" />
-                <img [src]="dress.images[2]" alt="{{ dress.name }} image 3" class="h-48 w-full rounded-[2rem] object-cover" />
+                <img [src]="dress.images[1]" alt="{{ dress.name }} image 2" (error)="onImageError($event)" class="h-48 w-full rounded-[2rem] object-cover" />
+                <img [src]="dress.images[2]" alt="{{ dress.name }} image 3" (error)="onImageError($event)" class="h-48 w-full rounded-[2rem] object-cover" />
               </div>
             </div>
             <div class="rounded-[2rem] border border-slate-200 bg-white p-8 shadow-soft dark:border-slate-800 dark:bg-slate-950">
@@ -74,9 +74,15 @@ import type { Review } from '../../../models/review.model';
 export class DressDetailsPage implements OnInit {
   protected dress: Dress | null = null;
   protected reviews: Review[] = [];
+  protected fallbackImage = 'https://via.placeholder.com/1200x900?text=Dress+Preview';
   private readonly route = inject(ActivatedRoute);
   private readonly http = inject(HttpClient);
   private readonly catalogService = inject(CatalogService);
+
+  protected onImageError(event: Event): void {
+    const target = event.target as HTMLImageElement;
+    target.src = this.fallbackImage;
+  }
 
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');

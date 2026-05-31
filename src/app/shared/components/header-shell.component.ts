@@ -1,11 +1,13 @@
 import { Component, computed, inject } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { RouterLink, RouterLinkActive } from '@angular/router';
+import { LocationService } from '../../core/services/location.service';
 import { ThemeService } from '../../core/services/theme.service';
 
 @Component({
   selector: 'app-header-shell',
   standalone: true,
-  imports: [RouterLink, RouterLinkActive],
+  imports: [FormsModule, RouterLink, RouterLinkActive],
   template: `
     <header class="sticky top-0 z-40 border-b border-slate-200/70 bg-white/90 backdrop-blur-xl dark:border-slate-700/70 dark:bg-slate-950/90">
       <div class="container flex flex-wrap items-center justify-between gap-4 py-4">
@@ -19,12 +21,20 @@ import { ThemeService } from '../../core/services/theme.service';
 
         <nav class="hidden items-center gap-4 md:flex">
           <a routerLink="/catalog" routerLinkActive="text-brand-600" class="text-sm text-slate-700 hover:text-brand-600 dark:text-slate-300">Catalog</a>
+          <a routerLink="/occasions" routerLinkActive="text-brand-600" class="text-sm text-slate-700 hover:text-brand-600 dark:text-slate-300">Occasions</a>
+          <a routerLink="/collections" routerLinkActive="text-brand-600" class="text-sm text-slate-700 hover:text-brand-600 dark:text-slate-300">Collections</a>
           <a routerLink="/booking" routerLinkActive="text-brand-600" class="text-sm text-slate-700 hover:text-brand-600 dark:text-slate-300">Booking</a>
           <a routerLink="/customer" routerLinkActive="text-brand-600" class="text-sm text-slate-700 hover:text-brand-600 dark:text-slate-300">Dashboard</a>
           <a routerLink="/admin" routerLinkActive="text-brand-600" class="text-sm text-slate-700 hover:text-brand-600 dark:text-slate-300">Admin</a>
         </nav>
 
-        <div class="flex items-center gap-3">
+        <div class="flex flex-wrap items-center gap-3">
+          <label class="flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
+            City
+            <select class="bg-transparent outline-none" [ngModel]="locationService.selectedCity()" (ngModelChange)="locationService.selectCity($event)">
+              <option *ngFor="let city of locationService.cities" [value]="city">{{ city }}</option>
+            </select>
+          </label>
           <button type="button" class="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm text-slate-700 shadow-sm transition-base hover:border-brand-300 hover:text-brand-600 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200" (click)="themeService.toggleMode()">
             {{ toggleLabel() }}
           </button>
@@ -36,6 +46,7 @@ import { ThemeService } from '../../core/services/theme.service';
 })
 export class HeaderShellComponent {
   protected readonly themeService = inject(ThemeService);
+  protected readonly locationService = inject(LocationService);
   protected readonly displayMode = computed(() => this.themeService.effectiveTheme());
 
   protected toggleLabel() {

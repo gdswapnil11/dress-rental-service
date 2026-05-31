@@ -1,5 +1,6 @@
 export * from './auth.model';
 export * from './category.model';
+export * from './collection.model';
 export * from './coupon.model';
 export * from './dress.model';
 export * from './notification.model';

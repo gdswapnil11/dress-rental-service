@@ -9,7 +9,7 @@ import { Dress } from '../../models/dress.model';
   template: `
     <article class="card overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-soft transition-base hover:-translate-y-1 hover:border-brand-200 dark:border-slate-800 dark:bg-slate-900">
       <a [routerLink]="['/catalog', dress.id]" class="block h-64 overflow-hidden bg-slate-100 dark:bg-slate-800">
-        <img [src]="dress.images[0]" alt="{{ dress.name }}" class="h-full w-full object-cover transition-base duration-500 hover:scale-105" />
+        <img [src]="dress.images[0]" alt="{{ dress.name }}" (error)="onImageError($event)" class="h-full w-full object-cover transition-base duration-500 hover:scale-105" />
       </a>
       <div class="space-y-3 p-5">
         <div class="flex items-center justify-between gap-3">
@@ -28,4 +28,11 @@ import { Dress } from '../../models/dress.model';
 })
 export class CatalogCardComponent {
   @Input({ required: true }) dress!: Dress;
+
+  protected fallbackImage = 'https://via.placeholder.com/1200x900?text=Dress+Preview';
+
+  protected onImageError(event: Event): void {
+    const target = event.target as HTMLImageElement;
+    target.src = this.fallbackImage;
+  }
 }
