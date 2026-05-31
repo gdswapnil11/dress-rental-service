@@ -24,6 +24,9 @@ jobs:
       - name: Build application
         run: npm run build -- --configuration production --base-href /dress-rental-service/
 
+      - name: Add GitHub Pages fallback
+        run: cp dist/dress-rental-app/index.html dist/dress-rental-app/404.html
+
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
         with:
