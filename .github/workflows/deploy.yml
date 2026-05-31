@@ -25,12 +25,12 @@ jobs:
         run: npm run build -- --configuration production --base-href /dress-rental-service/
 
       - name: Add GitHub Pages fallback
-        run: cp dist/dress-rental-app/index.html dist/dress-rental-app/404.html
+        run: cp dist/dress-rental-app/browser/index.html dist/dress-rental-app/browser/404.html
 
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           branch: gh-pages
-          folder: dist/dress-rental-app
+          folder: dist/dress-rental-app/browser
           clean: true
           token: ${{ secrets.GITHUB_TOKEN }}
