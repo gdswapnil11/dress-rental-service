@@ -1,12 +1,16 @@
 {
   "name": "dress-rental-app",
   "version": "0.0.0",
+  "private": true,
+  "packageManager": "npm@11.11.0",
+  "homepage": "https://gdswapnil11.github.io/dress-rental-service",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "deploy": "npm run build -- --configuration production --base-href /dress-rental-service/"
   },
   "prettier": {
     "printWidth": 100,
@@ -20,8 +24,6 @@
       }
     ]
   },
-  "private": true,
-  "packageManager": "npm@11.11.0",
   "dependencies": {
     "@angular/cdk": "^21.2.13",
     "@angular/common": "^21.0.0",
